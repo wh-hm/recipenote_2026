@@ -25,8 +25,13 @@ SECRET_KEY = "django-insecure-bvnkbn=&b6lok_il-e-c2r^zm#tr+gcy8xzd71s^4h6ij=3d2z
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "recipenote-2026.onrender.com",
+]
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://recipenote-2026.onrender.com",
+]
 
 # Application definition
 
