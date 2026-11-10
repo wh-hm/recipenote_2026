@@ -1,0 +1,498 @@
+
+{% extends "base.html" %}
+
+{% block title %}レシピ新規作成 | レシピノート{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* 全体 */
+    .recipe-form {
+        max-width: 760px;
+        margin: 0 auto;
+    }
+
+    .recipe-form h1 {
+        margin-bottom: 30px;
+        color: #3f513b;
+    }
+
+    .recipe-form h2 {
+        margin: 35px 0 20px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid #e5e8df;
+        color: #526b50;
+        font-size: 21px;
+    }
+
+    /* 基本情報 */
+    .basic-info {
+        background: #fff;
+        border: 1px solid #e5e8df;
+        border-radius: 12px;
+        padding: 22px;
+    }
+
+    .basic-info p {
+        margin: 0 0 20px;
+    }
+
+    .basic-info p:last-child {
+        margin-bottom: 0;
+    }
+
+    /* 入力欄 */
+    .recipe-form label {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        color: #444;
+    }
+
+    .recipe-form input:not([type="checkbox"]):not([type="file"]),
+    .recipe-form textarea {
+        width: 100%;
+        padding: 11px 13px;
+        border: 1px solid #d8ddd4;
+        border-radius: 8px;
+        background: #fff;
+        font-size: 14px;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .recipe-form textarea {
+        resize: vertical;
+        min-height: 120px;
+        line-height: 1.7;
+    }
+
+    .recipe-form input:focus,
+    .recipe-form textarea:focus {
+        outline: none;
+        border-color: #829b78;
+        box-shadow: 0 0 0 3px rgba(130, 155, 120, 0.15);
+    }
+
+    .recipe-form input[type="file"] {
+        max-width: 100%;
+        padding: 8px;
+        border: 1px solid #d8ddd4;
+        border-radius: 8px;
+        background: #fff;
+    }
+
+    /* 材料・作り方のカード */
+    .ingredient-form,
+    .step-form {
+        background: #fff;
+        border: 1px solid #e5e8df;
+        border-radius: 12px;
+        padding: 22px;
+        margin-bottom: 15px;
+    }
+
+    /* 番号 */
+    .form-number {
+        display: inline-block;
+        margin: 0 0 18px;
+        color: #526b50;
+        font-size: 18px;
+        font-weight: bold;
+    }
+
+    /* 材料・作り方の入力欄 */
+    .ingredient-form p,
+    .step-form p {
+        margin: 0 0 18px;
+    }
+
+    /* 削除ボタン */
+    .recipe-form .remove-button {
+        background: #fff;
+        color: #b65e58;
+        border: 1px solid #e7c7c4;
+        border-radius: 7px;
+        padding: 7px 14px;
+        font-size: 13px;
+        cursor: pointer;
+    }
+
+    .recipe-form .remove-button:hover {
+        background: #fff3f2;
+    }
+
+    /* 追加ボタン */
+    #add-ingredient,
+    #add-step {
+        display: block;
+        width: 100%;
+        margin: 8px 0 25px;
+        padding: 13px;
+        background: #f0f4ed;
+        color: #526b50;
+        border: 1px dashed #a9bba2;
+        border-radius: 9px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    #add-ingredient:hover,
+    #add-step:hover {
+        background: #e5eddf;
+    }
+
+    /* 区切り線 */
+    .recipe-form hr {
+        border: none;
+        border-top: 1px solid #e5e8df;
+        margin: 35px 0;
+    }
+
+    /* 保存ボタン */
+    .recipe-form button[type="submit"] {
+        display: block;
+        width: 100%;
+        padding: 15px;
+        margin-top: 30px;
+        background: #78936f;
+        color: #fff;
+        border: none;
+        border-radius: 9px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .recipe-form button[type="submit"]:hover {
+        background: #637d5b;
+    }
+
+    /* エラー表示 */
+    .recipe-form .errorlist {
+        color: #c44b45;
+        font-size: 13px;
+        padding-left: 20px;
+    }
+
+    /* スマートフォン */
+    @media (max-width: 600px) {
+        .recipe-form {
+            width: 100%;
+        }
+
+        .basic-info,
+        .ingredient-form,
+        .step-form {
+            padding: 16px;
+        }
+
+        .recipe-form h1 {
+            font-size: 23px;
+        }
+    }
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="recipe-form">
+
+    <h1>レシピを新規作成</h1>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <!-- 基本情報 -->
+        <h2>基本情報</h2>
+
+        <div class="basic-info">
+
+            <p>
+                {{ form.title.label_tag }}
+                {{ form.title }}
+                {{ form.title.errors }}
+            </p>
+
+            <p>
+                {{ form.reference_url.label_tag }}
+                {{ form.reference_url }}
+                {{ form.reference_url.errors }}
+            </p>
+
+            <p>
+                {{ form.image.label_tag }}
+                {{ form.image }}
+                {{ form.image.errors }}
+            </p>
+
+            <p>
+                {{ form.memo.label_tag }}
+                {{ form.memo }}
+                {{ form.memo.errors }}
+            </p>
+
+        </div>
+
+        <hr>
+
+        <!-- 材料 -->
+        <h2>材料</h2>
+
+        {{ ingredient_formset.management_form }}
+
+        <div id="ingredients-container">
+
+            {% for ingredient_form in ingredient_formset %}
+
+                <div class="ingredient-form">
+
+                    {% for hidden in ingredient_form.hidden_fields %}
+                        {{ hidden }}
+                    {% endfor %}
+
+                    <h3 class="form-number"></h3>
+
+                    {% for field in ingredient_form.visible_fields %}
+                        {% if field.name != "DELETE" %}
+                            <p>
+                                {{ field.label_tag }}
+                                {{ field }}
+                                {{ field.errors }}
+                            </p>
+                        {% endif %}
+                    {% endfor %}
+
+                    <button type="button" class="remove-button">
+                        削除
+                    </button>
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+        <button type="button" id="add-ingredient">
+            ＋ 材料を追加
+        </button>
+
+        <!-- 材料の追加用テンプレート -->
+        <template id="ingredient-empty-form">
+
+            <div class="ingredient-form">
+
+                {% for hidden in ingredient_formset.empty_form.hidden_fields %}
+                    {{ hidden }}
+                {% endfor %}
+
+                <h3 class="form-number"></h3>
+
+                {% for field in ingredient_formset.empty_form.visible_fields %}
+                    {% if field.name != "DELETE" %}
+                        <p>
+                            {{ field.label_tag }}
+                            {{ field }}
+                        </p>
+                    {% endif %}
+                {% endfor %}
+
+                <button type="button" class="remove-button">
+                    削除
+                </button>
+
+            </div>
+
+        </template>
+
+        <hr>
+
+        <!-- 作り方 -->
+        <h2>作り方</h2>
+
+        {{ step_formset.management_form }}
+
+        <div id="steps-container">
+
+            {% for step_form in step_formset %}
+
+                <div class="step-form">
+
+                    {% for hidden in step_form.hidden_fields %}
+                        {{ hidden }}
+                    {% endfor %}
+
+                    <h3 class="form-number"></h3>
+
+                    {% for field in step_form.visible_fields %}
+                        {% if field.name != "DELETE" %}
+                            <p>
+                                {{ field.label_tag }}
+                                {{ field }}
+                                {{ field.errors }}
+                            </p>
+                        {% endif %}
+                    {% endfor %}
+
+                    <button type="button" class="remove-button">
+                        削除
+                    </button>
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+        <button type="button" id="add-step">
+            ＋ 作り方を追加
+        </button>
+
+        <!-- 作り方の追加用テンプレート -->
+        <template id="step-empty-form">
+
+            <div class="step-form">
+
+                {% for hidden in step_formset.empty_form.hidden_fields %}
+                    {{ hidden }}
+                {% endfor %}
+
+                <h3 class="form-number"></h3>
+
+                {% for field in step_formset.empty_form.visible_fields %}
+                    {% if field.name != "DELETE" %}
+                        <p>
+                            {{ field.label_tag }}
+                            {{ field }}
+                        </p>
+                    {% endif %}
+                {% endfor %}
+
+                <button type="button" class="remove-button">
+                    削除
+                </button>
+
+            </div>
+
+        </template>
+
+        <hr>
+
+        <!-- 保存 -->
+        <button type="submit">
+            レシピを保存
+        </button>
+
+    </form>
+
+</div>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    // フォームを追加する処理
+    function addForm(containerId, templateId, totalFormsId, formClass) {
+
+        const container = document.getElementById(containerId);
+        const template = document.getElementById(templateId);
+        const totalForms = document.getElementById(totalFormsId);
+
+        const formIndex = Number(totalForms.value);
+
+        // 空フォームを複製
+        const newForm = template.innerHTML.replace(/__prefix__/g, formIndex);
+
+        container.insertAdjacentHTML("beforeend", newForm);
+
+        // フォーム数を更新
+        totalForms.value = formIndex + 1;
+
+        // 番号を更新
+        updateNumbers(container, formClass);
+    }
+
+
+    // 番号を振り直す処理
+    function updateNumbers(container, formClass) {
+
+        const forms = container.querySelectorAll("." + formClass);
+
+        forms.forEach(function (form, index) {
+
+            const number = form.querySelector(".form-number");
+
+            number.textContent = (index + 1) + ".";
+
+        });
+    }
+
+
+    // 材料を追加
+    document.getElementById("add-ingredient").addEventListener("click", function () {
+
+        addForm(
+            "ingredients-container",
+            "ingredient-empty-form",
+            "id_ingredients-TOTAL_FORMS",
+            "ingredient-form"
+        );
+
+    });
+
+
+    // 作り方を追加
+    document.getElementById("add-step").addEventListener("click", function () {
+
+        addForm(
+            "steps-container",
+            "step-empty-form",
+            "id_steps-TOTAL_FORMS",
+            "step-form"
+        );
+
+    });
+
+
+    // 削除ボタン
+    document.addEventListener("click", function (event) {
+
+        if (event.target.classList.contains("remove-button")) {
+
+            const form = event.target.closest(".ingredient-form, .step-form");
+            const container = form.parentElement;
+
+            form.remove();
+
+            // 削除後に番号を振り直す
+            if (container.id === "ingredients-container") {
+
+                updateNumbers(container, "ingredient-form");
+
+            } else if (container.id === "steps-container") {
+
+                updateNumbers(container, "step-form");
+
+            }
+
+        }
+
+    });
+
+
+    // 初期表示時に番号を設定
+    updateNumbers(
+        document.getElementById("ingredients-container"),
+        "ingredient-form"
+    );
+
+    updateNumbers(
+        document.getElementById("steps-container"),
+        "step-form"
+    );
+
+});
+</script>
+
+{% endblock %}

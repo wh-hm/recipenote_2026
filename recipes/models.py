@@ -1,26 +1,36 @@
 
 from django.db import models
 from django.contrib.auth.models import User
+from django.conf import settings
+from django.core.files.storage import FileSystemStorage
 
+PRIVATE_MEDIA_ROOT = settings.PRIVATE_MEDIA_ROOT
 
 # レシピテーブル
 class Recipe(models.Model):
     owner = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='recipes'
+        related_name="recipes"
     )
 
     title = models.CharField(max_length=100)
 
     image = models.ImageField(
-        upload_to='recipe_images/',
+        upload_to="recipes/",
         blank=True,
-        null=True
+        null=True,
+        storage=FileSystemStorage(
+            location=PRIVATE_MEDIA_ROOT
+        )
     )
 
     reference_url = models.URLField(
-        blank=True
+        blank=True,
+        null=True
+    )
+    memo = models.TextField(
+        blank=True,
     )
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -35,7 +45,7 @@ class RecipeIngredient(models.Model):
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name='ingredients'
+        related_name="ingredients"
     )
 
     name = models.CharField(max_length=100)
@@ -43,7 +53,7 @@ class RecipeIngredient(models.Model):
     sort_order = models.IntegerField()
 
     class Meta:
-        ordering = ['sort_order']
+        ordering = ["sort_order"]
 
     def __str__(self):
         return self.name
@@ -54,14 +64,14 @@ class RecipeStep(models.Model):
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name='steps'
+        related_name="steps"
     )
 
     instruction = models.CharField(max_length=100)
     step_number = models.IntegerField()
 
     class Meta:
-        ordering = ['step_number']
+        ordering = ["step_number"]
 
     def __str__(self):
-        return f'{self.step_number}: {self.instruction}'
+        return f"{self.step_number}：{self.instruction}"

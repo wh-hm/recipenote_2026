@@ -1,0 +1,296 @@
+
+{% extends "base.html" %}
+
+{% block title %}{{ recipe.title }} | レシピノート{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* 全体 */
+    .recipe-detail {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    /* レシピタイトル */
+    .recipe-header {
+        margin-bottom: 25px;
+    }
+
+    .recipe-header h1 {
+        margin: 0 0 12px;
+        color: #3f513b;
+        font-size: 30px;
+    }
+
+    .created-date {
+        color: #888;
+        font-size: 14px;
+    }
+
+    /* 画像 */
+    .recipe-image {
+        margin-bottom: 25px;
+        text-align: center;
+    }
+
+    .recipe-image img {
+        max-width: 100%;
+        max-height: 400px;
+        object-fit: contain;
+        border-radius: 12px;
+    }
+
+    /* 各セクション */
+    .detail-section {
+        background: #fff;
+        border: 1px solid #e5e8df;
+        border-radius: 12px;
+        padding: 28px 30px;
+        margin-bottom: 22px;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.04);
+    }
+
+    .detail-section h2 {
+        margin: 0 0 20px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid #e5e8df;
+        color: #526b50;
+        font-size: 21px;
+    }
+
+    /* 材料・作り方 */
+    .detail-list {
+        margin: 0;
+        padding-left: 25px;
+    }
+
+    .detail-list li {
+        padding: 14px 0;
+        border-bottom: 1px solid #eee;
+        line-height: 1.7;
+    }
+
+    .detail-list li:last-child {
+        border-bottom: none;
+    }
+
+    /* メモ */
+    .memo-content {
+        line-height: 1.9;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        color: #444;
+    }
+
+    /* 参考URL */
+    .reference-link {
+        color: #527c5b;
+        overflow-wrap: anywhere;
+        text-decoration: underline;
+    }
+
+    .reference-link:hover {
+        opacity: 0.7;
+    }
+
+    /* 操作ボタン */
+    .detail-actions {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+        margin: 30px 0;
+    }
+
+    .detail-actions form {
+        display: flex;
+        margin: 0;
+        width: 100%;
+    }
+
+    .action-button {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        min-height: 48px;
+        box-sizing: border-box;
+        padding: 12px 10px;
+        border: none;
+        border-radius: 8px;
+        color: #fff;
+        font-size: 15px;
+        font-weight: bold;
+        text-align: center;
+        text-decoration: none;
+        cursor: pointer;
+        transition: opacity 0.2s, transform 0.2s;
+    }
+
+    .action-button:hover {
+        opacity: 0.85;
+        transform: translateY(-1px);
+    }
+
+    .edit-button {
+        background: #789879;
+    }
+
+    .delete-button {
+        background: #bd5b55;
+    }
+
+    .delete-button:hover {
+        background: #d47a72;
+        transform: translateY(-1px);
+    }
+
+    .back-button {
+        background: #858585;
+    }
+
+    /* スマートフォン */
+    @media (max-width: 600px) {
+        .recipe-detail {
+            width: 100%;
+        }
+
+        .recipe-header h1 {
+            font-size: 25px;
+        }
+
+        .detail-section {
+            padding: 22px 20px;
+            margin-bottom: 18px;
+        }
+
+        .detail-section h2 {
+            font-size: 19px;
+        }
+
+        .detail-actions {
+            grid-template-columns: 1fr;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        .action-button {
+            min-height: 46px;
+        }
+    }
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="recipe-detail">
+
+    <!-- レシピタイトル -->
+    <div class="recipe-header">
+        <h1>{{ recipe.title }}</h1>
+
+        <p class="created-date">
+            登録日：{{ recipe.created_at|date:"Y/m/d" }}
+        </p>
+    </div>
+
+    <!-- 料理画像 -->
+    {% if recipe.image %}
+        <div class="recipe-image">
+            <img
+                src="{% url 'recipe_image' recipe.id %}"
+                alt="{{ recipe.title }}"
+            >
+        </div>
+    {% endif %}
+
+    <!-- 材料 -->
+    <section class="detail-section">
+        <h2>材料</h2>
+
+        <ol class="detail-list">
+            {% for ingredient in recipe.ingredients.all %}
+                <li>
+                    {{ ingredient.name }} ： {{ ingredient.quantity }}
+                </li>
+            {% empty %}
+                <li>材料は登録されていません。</li>
+            {% endfor %}
+        </ol>
+    </section>
+
+    <!-- 作り方 -->
+    <section class="detail-section">
+        <h2>作り方</h2>
+
+        <ol class="detail-list">
+            {% for step in recipe.steps.all %}
+                <li>{{ step.instruction }}</li>
+            {% empty %}
+                <li>作り方は登録されていません。</li>
+            {% endfor %}
+        </ol>
+    </section>
+
+    <!-- メモ -->
+    {% if recipe.memo %}
+        <section class="detail-section">
+            <h2>メモ</h2>
+
+            <div class="memo-content">{{ recipe.memo }}</div>
+        </section>
+    {% endif %}
+
+    <!-- 参考URL -->
+    {% if recipe.reference_url %}
+        <section class="detail-section">
+            <h2>参考URL</h2>
+
+            <a
+                href="{{ recipe.reference_url }}"
+                class="reference-link"
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+                {{ recipe.reference_url }}
+            </a>
+        </section>
+    {% endif %}
+
+    <!-- 操作ボタン -->
+    <div class="detail-actions">
+
+        <a
+            href="{% url 'recipe_edit' recipe.id %}"
+            class="action-button edit-button"
+        >
+            レシピを編集
+        </a>
+
+        <form
+            method="POST"
+            action="{% url 'recipe_delete' recipe.id %}"
+            onsubmit="return confirm('このレシピを削除してもよろしいですか？');"
+        >
+            {% csrf_token %}
+
+            <button
+                type="submit"
+                class="action-button delete-button"
+            >
+                レシピを削除
+            </button>
+        </form>
+
+        <a
+            href="{% url 'recipe_list' %}"
+            class="action-button back-button"
+        >
+            ← レシピ一覧へ戻る
+        </a>
+
+    </div>
+
+</div>
+
+{% endblock %}

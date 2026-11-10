@@ -1,0 +1,213 @@
+
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}レシピノート{% endblock %}</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: sans-serif;
+            background-color: #f8f7f3;
+            color: #333;
+        }
+
+        header {
+            background-color: #ffffff;
+            border-bottom: 1px solid #e5e5e5;
+            padding: 16px 30px;
+        }
+
+        .header-inner {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .site-title {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .site-title a {
+            color: #526b50;
+            text-decoration: none;
+        }
+
+        nav {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        nav a {
+            color: #444;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        nav a:hover {
+            color: #78936f;
+        }
+
+        main {
+            max-width: 1000px;
+            margin: 35px auto;
+            padding: 0 20px;
+            min-height: 70vh;
+        }
+
+        h1 {
+            font-size: 26px;
+            margin-bottom: 25px;
+        }
+
+        h2 {
+            font-size: 20px;
+            margin-top: 25px;
+        }
+
+        button,
+        .button {
+            display: inline-block;
+            padding: 10px 18px;
+            border: none;
+            border-radius: 6px;
+            background-color: #78936f;
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        button:hover,
+        .button:hover {
+            background-color: #637d5b;
+        }
+
+        input,
+        textarea,
+        select {
+            max-width: 100%;
+            padding: 9px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        input[type="text"],
+        input[type="url"],
+        input[type="email"],
+        input[type="password"],
+        textarea {
+            width: 100%;
+        }
+
+        .messages {
+            margin-bottom: 20px;
+        }
+
+        .message {
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            background-color: #e8f1e5;
+            color: #3f6539;
+        }
+
+        footer {
+            padding: 20px;
+            text-align: center;
+            color: #888;
+            font-size: 12px;
+        }
+
+        @media (max-width: 600px) {
+            header {
+                padding: 15px;
+            }
+
+            .header-inner {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            nav {
+                gap: 12px;
+            }
+
+            main {
+                margin-top: 25px;
+            }
+        }
+    </style>
+
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+
+    <header>
+        <div class="header-inner">
+
+            <h1 class="site-title">
+                <a href="{% url 'index' %}">
+                    レシピノート
+                </a>
+            </h1>
+
+            <nav>
+                {% if user.is_authenticated %}
+                    <a href="{% url 'recipe_list' %}">レシピ一覧</a>
+                    <a href="{% url 'recipe_create' %}">レシピを作成</a>
+                    <a href="{% url 'logout' %}">ログアウト</a>
+                {% else %}
+                    <a href="{% url 'login' %}">ログイン</a>
+                    <a href="{% url 'register' %}">新規登録</a>
+                {% endif %}
+            </nav>
+
+        </div>
+    </header>
+
+    <main>
+
+        <!-- メッセージ表示 -->
+        {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                    <div class="message">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- 各ページの内容 -->
+        {% block content %}
+        {% endblock %}
+
+    </main>
+
+    <footer>
+        <p>&copy; 2026 レシピノート</p>
+    </footer>
+
+    {% block extra_js %}{% endblock %}
+
+</body>
+</html>

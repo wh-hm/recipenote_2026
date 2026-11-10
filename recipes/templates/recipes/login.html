@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+
+{% block title %}ログイン | レシピノート{% endblock %}
+
+{% block extra_css %}
+<style>
+    .login-container {
+        width: 100%;
+        max-width: 420px;
+        margin: 55px auto;
+        padding: 38px 35px;
+        box-sizing: border-box;
+        background: #ffffff;
+        border: 1px solid #e8e8e2;
+        border-radius: 16px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.06);
+    }
+
+    .login-heading {
+        margin: 0 0 8px;
+        color: #344536;
+        font-size: 27px;
+        text-align: center;
+    }
+
+    .login-subtitle {
+        margin: 0 0 30px;
+        color: #888;
+        font-size: 14px;
+        text-align: center;
+    }
+
+    .login-form {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .form-group label {
+        color: #444;
+        font-size: 14px;
+        font-weight: bold;
+    }
+
+    .form-group input {
+        width: 100%;
+        padding: 13px 14px;
+        box-sizing: border-box;
+        border: 1px solid #d8ddd3;
+        border-radius: 8px;
+        background: #fafaf8;
+        font-size: 15px;
+        outline: none;
+        transition: 0.2s;
+    }
+
+    .form-group input:focus {
+        border-color: #789477;
+        background: #ffffff;
+        box-shadow: 0 0 0 3px rgba(120, 148, 119, 0.13);
+    }
+
+    .login-button {
+        width: 100%;
+        margin-top: 5px;
+        padding: 14px;
+        border: none;
+        border-radius: 8px;
+        background: #789477;
+        color: #ffffff;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .login-button:hover {
+        background: #607d5f;
+        transform: translateY(-2px);
+    }
+
+    .register-link {
+        margin: 25px 0 0;
+        color: #777;
+        font-size: 14px;
+        text-align: center;
+    }
+
+    .register-link a {
+        color: #607d5f;
+        font-weight: bold;
+        text-decoration: none;
+    }
+
+    .register-link a:hover {
+        text-decoration: underline;
+    }
+
+    .login-error {
+        margin-bottom: 20px;
+        padding: 12px 15px;
+        border: 1px solid #edcaca;
+        border-radius: 8px;
+        background: #fff4f3;
+        color: #b34e48;
+        font-size: 14px;
+    }
+
+    @media (max-width: 600px) {
+        .login-container {
+            max-width: 100%;
+            margin: 30px auto;
+            padding: 30px 22px;
+        }
+
+        .login-heading {
+            font-size: 24px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="login-container">
+
+    <h1 class="login-heading">おかえりなさい</h1>
+
+    <p class="login-subtitle">
+        ログインして、あなたのレシピを管理しましょう。
+    </p>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="login-error">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="POST" class="login-form">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="email">メールアドレス</label>
+            <input
+                type="email"
+                name="email"
+                id="email"
+                placeholder="メールアドレスを入力"
+                autocomplete="email"
+                required
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="password">パスワード</label>
+            <input
+                type="password"
+                name="password"
+                id="password"
+                placeholder="パスワードを入力"
+                autocomplete="current-password"
+                required
+            >
+        </div>
+
+        <button type="submit" class="login-button">
+            ログイン
+        </button>
+    </form>
+
+    <p class="register-link">
+        アカウントをお持ちでない方は
+        <a href="{% url 'register' %}">新規登録</a>
+    </p>
+
+</div>
+
+{% endblock %}

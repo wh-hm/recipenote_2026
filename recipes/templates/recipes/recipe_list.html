@@ -1,0 +1,337 @@
+{% extends "base.html" %}
+
+{% block title %}マイレシピノート | レシピノート{% endblock %}
+
+{% block extra_css %}
+<style>
+    .list-container {
+        max-width: 1100px;
+        margin: 0 auto;
+    }
+
+    .page-heading {
+        margin-bottom: 8px;
+        font-size: 30px;
+        color: #344536;
+    }
+
+    .welcome-message {
+        color: #666;
+        margin-bottom: 25px;
+    }
+
+    .list-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+
+    .list-header h2 {
+        margin: 0;
+        font-size: 22px;
+    }
+
+    .create-button {
+        display: inline-block;
+        padding: 11px 20px;
+        background: #789477;
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: bold;
+        transition: 0.2s;
+    }
+
+    .create-button:hover {
+        background: #607d5f;
+        transform: translateY(-1px);
+    }
+
+    /* 検索エリア */
+    .search-container {
+        margin-bottom: 28px;
+        padding: 20px;
+        background: #f7f8f3;
+        border: 1px solid #e5e9df;
+        border-radius: 12px;
+    }
+
+    .search-form {
+        display: flex;
+        gap: 10px;
+    }
+
+    .search-input {
+        flex: 1;
+        min-width: 0;
+        padding: 12px 15px;
+        border: 1px solid #d8ddd3;
+        border-radius: 8px;
+        background: white;
+        font-size: 15px;
+        outline: none;
+    }
+
+    .search-input:focus {
+        border-color: #789477;
+        box-shadow: 0 0 0 3px rgba(120, 148, 119, 0.15);
+    }
+
+    .search-button {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 8px;
+        background: #789477;
+        color: white;
+        font-size: 15px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .search-button:hover {
+        background: #607d5f;
+        transform: translateY(-1px);
+    }
+
+    .clear-button {
+        display: inline-block;
+        margin-top: 12px;
+        color: #71836d;
+        font-size: 14px;
+        text-decoration: none;
+    }
+
+    .clear-button:hover {
+        text-decoration: underline;
+    }
+
+    .search-description {
+        margin: 0 0 12px;
+        color: #777;
+        font-size: 13px;
+    }
+
+    .search-result {
+        margin: 0 0 18px;
+        color: #666;
+        font-size: 14px;
+    }
+
+    .recipe-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 25px;
+    }
+
+    .recipe-card {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid #e8e8e2;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        transition: 0.2s;
+    }
+
+    .recipe-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 7px 18px rgba(0, 0, 0, 0.10);
+    }
+
+    .recipe-link {
+        display: block;
+        color: inherit;
+        text-decoration: none;
+    }
+
+    .recipe-image {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+        display: block;
+        background: #f0f0eb;
+    }
+
+    .no-image {
+        height: 180px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f0f1e9;
+        color: #929987;
+        font-size: 14px;
+    }
+
+    .recipe-info {
+        padding: 17px;
+    }
+
+    .recipe-title {
+        margin: 0 0 12px;
+        font-size: 19px;
+        color: #344536;
+        overflow-wrap: anywhere;
+    }
+
+    .recipe-date {
+        margin: 0;
+        font-size: 13px;
+        color: #888;
+    }
+
+    .empty-message {
+        background: white;
+        padding: 50px 20px;
+        text-align: center;
+        border-radius: 12px;
+        color: #777;
+        border: 1px solid #e8e8e2;
+    }
+
+    @media (max-width: 600px) {
+        .page-heading {
+            font-size: 25px;
+        }
+
+        .search-container {
+            padding: 15px;
+        }
+
+        .search-form {
+            gap: 7px;
+        }
+
+        .search-button {
+            padding: 12px 16px;
+        }
+
+        .recipe-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .recipe-image,
+        .no-image {
+            height: 125px;
+        }
+
+        .recipe-info {
+            padding: 12px;
+        }
+
+        .recipe-title {
+            font-size: 16px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="list-container">
+
+    <!-- <h1 class="page-heading">マイレシピノート</h1>
+
+    <p class="welcome-message">
+        {{ request.user.username }} さん、こんにちは！
+    </p> -->
+
+    <div class="list-header">
+        <h1>レシピ一覧</h1>
+        <!-- <h2>レシピ一覧</h2> -->
+
+        <a href="{% url 'recipe_create' %}" class="create-button">
+            ＋ レシピを新規作成
+        </a>
+    </div>
+    <div>
+        <p class="welcome-message">
+            {{ request.user.username }} さん、こんにちは！
+        </p>
+    </div>
+
+    <!-- 検索フォーム -->
+    <div class="search-container">
+
+        <p class="search-description">
+            レシピ名または材料名で検索できます。
+        </p>
+
+        <form method="GET" action="{% url 'recipe_list' %}" class="search-form">
+            <input
+                type="text"
+                name="q"
+                value="{{ query }}"
+                class="search-input"
+                placeholder="例：カレー、じゃがいも、鶏肉"
+            >
+
+            <button type="submit" class="search-button">
+                検索
+            </button>
+        </form>
+
+        {% if query %}
+            <a href="{% url 'recipe_list' %}" class="clear-button">
+                検索をクリア
+            </a>
+        {% endif %}
+
+    </div>
+
+    {% if query %}
+        <p class="search-result">
+            「{{ query }}」の検索結果：{{ recipes|length }}件
+        </p>
+    {% endif %}
+
+    {% if recipes %}
+        <div class="recipe-grid">
+            {% for recipe in recipes %}
+                <article class="recipe-card">
+                    <a href="{% url 'recipe_detail' recipe.id %}"
+                       class="recipe-link">
+
+                        {% if recipe.image %}
+                            <img
+                                src="{% url 'recipe_image' recipe.id %}"
+                                alt="{{ recipe.title }}"
+                                class="recipe-image"
+                            >
+                        {% else %}
+                            <div class="no-image">
+                                画像はありません
+                            </div>
+                        {% endif %}
+
+                        <div class="recipe-info">
+                            <h3 class="recipe-title">
+                                {{ recipe.title }}
+                            </h3>
+
+                            <p class="recipe-date">
+                                登録日：{{ recipe.created_at|date:"Y/m/d" }}
+                            </p>
+                        </div>
+
+                    </a>
+                </article>
+            {% endfor %}
+        </div>
+
+    {% else %}
+        <div class="empty-message">
+            {% if query %}
+                <p>「{{ query }}」に一致するレシピはありません。</p>
+                <p>別のキーワードで検索してみてください。</p>
+            {% else %}
+                <p>まだレシピが登録されていません。</p>
+                <p>「レシピを新規作成」から登録してみましょう！</p>
+            {% endif %}
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}

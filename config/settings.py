@@ -128,3 +128,14 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+PRIVATE_MEDIA_ROOT = BASE_DIR / "private_media"
+
+# ログインが必要なページに未ログインでアクセスした場合の転送先
+LOGIN_URL = "/login/"
+
+# ログイン成功後の転送先
+LOGIN_REDIRECT_URL = "/recipes/"
+
+# ログアウト後の転送先
+LOGOUT_REDIRECT_URL = "/login/"

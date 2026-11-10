@@ -1,0 +1,633 @@
+
+{% extends "base.html" %}
+
+{% block title %}レシピ編集 | レシピノート{% endblock %}
+
+{% block content %}
+<style>
+    .edit-container {
+        max-width: 800px;
+        margin: 40px auto;
+        padding: 0 20px;
+    }
+
+    .edit-container h1 {
+        color: #355b45;
+        margin-bottom: 30px;
+    }
+
+    .form-section {
+        background: #fff;
+        padding: 25px;
+        margin-bottom: 25px;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .form-section h2 {
+        font-size: 20px;
+        color: #355b45;
+        margin: 0 0 20px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #e5ece7;
+    }
+
+    .form-row {
+        margin-bottom: 20px;
+    }
+
+    .form-row label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 8px;
+        color: #444;
+    }
+
+    .form-row input:not([type="checkbox"]),
+    .form-row textarea,
+    .form-row select {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 11px;
+        border: 1px solid #ccd6cf;
+        border-radius: 6px;
+        font-size: 15px;
+    }
+
+    .form-row textarea {
+        resize: vertical;
+    }
+
+    /* 現在の画像 */
+    .current-image {
+        margin-bottom: 20px;
+    }
+
+    .current-image img {
+        display: block;
+        max-width: 220px;
+        max-height: 180px;
+        object-fit: contain;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        margin-bottom: 12px;
+        transition: opacity 0.2s ease;
+    }
+
+    .current-image.is-deleted img {
+        opacity: 0.35;
+    }
+
+    .image-delete-message {
+        display: none;
+        color: #a94442;
+        font-size: 13px;
+        margin-top: 8px;
+    }
+
+    .current-image.is-deleted .image-delete-message {
+        display: block;
+    }
+
+    /* 画像ファイル選択 */
+    .image-upload {
+        margin-top: 20px;
+    }
+
+    .image-upload > label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 8px;
+        color: #444;
+    }
+
+    .image-upload input[type="file"] {
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
+        padding: 12px;
+        background: #fafbf9;
+        border: 1px solid #ccd6cf;
+        border-radius: 7px;
+        color: #555;
+        font-size: 14px;
+    }
+
+    .image-upload input[type="file"]::file-selector-button {
+        padding: 9px 16px;
+        margin-right: 12px;
+        background: #e5eee6;
+        color: #456b53;
+        border: 1px solid #cbd8ce;
+        border-radius: 6px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: background 0.2s ease, transform 0.2s ease;
+    }
+
+    .image-upload input[type="file"]::file-selector-button:hover {
+        background: #d5e4d7;
+        transform: translateY(-1px);
+    }
+
+    .form-card {
+        padding: 18px;
+        margin-bottom: 15px;
+        background: #f8faf8;
+        border: 1px solid #e0e8e2;
+        border-radius: 8px;
+    }
+
+    .form-card h3 {
+        margin: 0 0 15px;
+        color: #456b53;
+        font-size: 16px;
+    }
+
+    .form-card input {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ccd6cf;
+        border-radius: 6px;
+    }
+
+    /* 共通ボタン */
+    .add-button,
+    .remove-button,
+    .save-button,
+    .back-button {
+        display: inline-block;
+        padding: 10px 18px;
+        border: none;
+        border-radius: 6px;
+        text-decoration: none;
+        font-size: 14px;
+        cursor: pointer;
+        transition: background 0.2s ease, transform 0.2s ease;
+    }
+
+    .add-button {
+        background: #e5f1e8;
+        color: #355b45;
+    }
+
+    .add-button:hover {
+        background: #d5e7d9;
+        transform: translateY(-1px);
+    }
+
+    .remove-button {
+        background: #f9e8e6;
+        color: #a94442;
+    }
+
+    .remove-button:hover {
+        background: #f2d8d5;
+        transform: translateY(-1px);
+    }
+
+    /* 保存ボタン */
+    .save-button {
+        background: #789879;
+        color: white;
+        font-size: 16px;
+        padding: 13px 30px;
+    }
+
+    .save-button:hover {
+        background: #668568;
+        transform: translateY(-1px);
+    }
+
+    /* キャンセルボタン */
+    .back-button {
+        background: #fff;
+        color: #526c50;
+        border: 1px solid #cbd8ce;
+        margin-left: 10px;
+    }
+
+    .back-button:hover {
+        background: #f1f5f1;
+        color: #405c45;
+        transform: translateY(-1px);
+    }
+
+    .form-actions {
+        text-align: center;
+        margin: 30px 0;
+    }
+
+    .errorlist {
+        color: #c0392b;
+        font-size: 13px;
+        padding-left: 20px;
+    }
+
+    .help-text {
+        color: #777;
+        font-size: 13px;
+    }
+
+    @media (max-width: 600px) {
+        .edit-container {
+            margin: 25px auto;
+            padding: 0 15px;
+        }
+
+        .form-section {
+            padding: 18px;
+        }
+
+        .form-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .save-button,
+        .back-button {
+            width: 100%;
+            box-sizing: border-box;
+            margin: 0;
+        }
+    }
+</style>
+
+<div class="edit-container">
+
+    <h1>レシピを編集</h1>
+
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            {{ form.non_field_errors }}
+        {% endif %}
+
+        <!-- 基本情報 -->
+        <section class="form-section">
+            <h2>基本情報</h2>
+
+            <div class="form-row">
+                {{ form.title.label_tag }}
+                {{ form.title }}
+                {{ form.title.errors }}
+            </div>
+
+            <div class="form-row">
+                {{ form.reference_url.label_tag }}
+                {{ form.reference_url }}
+                {{ form.reference_url.errors }}
+            </div>
+
+            <!-- 料理画像 -->
+            <div class="form-row">
+                <label>料理画像</label>
+
+                {% if recipe.image %}
+                    <div class="current-image" id="current-image">
+                        <p>現在の画像</p>
+
+                        <img
+                            src="{% url 'recipe_image' recipe.id %}"
+                            alt="{{ recipe.title }}"
+                        >
+
+                        <!-- Djangoの画像削除用チェックボックス -->
+                        <input
+                            type="checkbox"
+                            name="{{ form.image.html_name }}-clear"
+                            id="{{ form.image.id_for_label }}-clear"
+                            value="on"
+                            hidden
+                        >
+
+                        <button
+                            type="button"
+                            class="remove-button"
+                            id="delete-image-button"
+                        >
+                            画像を削除
+                        </button>
+
+                        <p class="image-delete-message">
+                            この画像は保存時に削除されます。
+                        </p>
+                    </div>
+                {% endif %}
+
+                <div class="image-upload">
+                    <label for="{{ form.image.id_for_label }}">
+                        {% if recipe.image %}
+                            新しい画像に変更
+                        {% else %}
+                            画像を選択
+                        {% endif %}
+                    </label>
+
+                    <input
+                        type="file"
+                        name="{{ form.image.html_name }}"
+                        id="{{ form.image.id_for_label }}"
+                        accept="image/png,image/jpeg"
+                    >
+
+                    <p class="help-text">
+                        {% if recipe.image %}
+                            新しい画像を選択すると現在の画像と差し替わります。
+                        {% else %}
+                            PNG・JPG形式の画像を選択できます。
+                        {% endif %}
+                    </p>
+
+                    {{ form.image.errors }}
+                </div>
+            </div>
+
+            <div class="form-row">
+                {{ form.memo.label_tag }}
+                {{ form.memo }}
+                {{ form.memo.errors }}
+            </div>
+        </section>
+
+        <!-- 材料 -->
+        <section class="form-section">
+            <h2>材料</h2>
+
+            {{ ingredient_formset.management_form }}
+
+            <div id="ingredient-forms">
+                {% for ingredient in ingredient_formset %}
+                    <div class="form-card ingredient-form">
+                        {% for hidden in ingredient.hidden_fields %}
+                            {{ hidden }}
+                        {% endfor %}
+
+                        {{ ingredient.DELETE.as_hidden }}
+
+                        <h3 class="ingredient-number">
+                            材料 {{ forloop.counter }}
+                        </h3>
+
+                        {% for field in ingredient.visible_fields %}
+                            {% if field.name != "DELETE" %}
+                                <div class="form-row">
+                                    {{ field.label_tag }}
+                                    {{ field }}
+                                    {{ field.errors }}
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+
+                        <button type="button" class="remove-button">
+                            この材料を削除
+                        </button>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <button type="button" class="add-button" id="add-ingredient">
+                ＋ 材料を追加
+            </button>
+
+            <template id="ingredient-empty-form">
+                <div class="form-card ingredient-form">
+                    {% for hidden in ingredient_formset.empty_form.hidden_fields %}
+                        {{ hidden }}
+                    {% endfor %}
+
+                    {{ ingredient_formset.empty_form.DELETE.as_hidden }}
+
+                    <h3 class="ingredient-number">材料</h3>
+
+                    {% for field in ingredient_formset.empty_form.visible_fields %}
+                        {% if field.name != "DELETE" %}
+                            <div class="form-row">
+                                {{ field.label_tag }}
+                                {{ field }}
+                                {{ field.errors }}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+
+                    <button type="button" class="remove-button">
+                        この材料を削除
+                    </button>
+                </div>
+            </template>
+        </section>
+
+        <!-- 作り方 -->
+        <section class="form-section">
+            <h2>作り方</h2>
+
+            {{ step_formset.management_form }}
+
+            <div id="step-forms">
+                {% for step in step_formset %}
+                    <div class="form-card step-form">
+                        {% for hidden in step.hidden_fields %}
+                            {{ hidden }}
+                        {% endfor %}
+
+                        {{ step.DELETE.as_hidden }}
+
+                        <h3 class="step-number">
+                            手順 {{ forloop.counter }}
+                        </h3>
+
+                        {% for field in step.visible_fields %}
+                            {% if field.name != "DELETE" %}
+                                <div class="form-row">
+                                    {{ field.label_tag }}
+                                    {{ field }}
+                                    {{ field.errors }}
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+
+                        <button type="button" class="remove-button">
+                            この手順を削除
+                        </button>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <button type="button" class="add-button" id="add-step">
+                ＋ 手順を追加
+            </button>
+
+            <template id="step-empty-form">
+                <div class="form-card step-form">
+                    {% for hidden in step_formset.empty_form.hidden_fields %}
+                        {{ hidden }}
+                    {% endfor %}
+
+                    {{ step_formset.empty_form.DELETE.as_hidden }}
+
+                    <h3 class="step-number">手順</h3>
+
+                    {% for field in step_formset.empty_form.visible_fields %}
+                        {% if field.name != "DELETE" %}
+                            <div class="form-row">
+                                {{ field.label_tag }}
+                                {{ field }}
+                                {{ field.errors }}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+
+                    <button type="button" class="remove-button">
+                        この手順を削除
+                    </button>
+                </div>
+            </template>
+        </section>
+
+        <!-- 保存・キャンセル -->
+        <div class="form-actions">
+            <button type="submit" class="save-button">
+                変更を保存
+            </button>
+
+            <a href="{% url 'recipe_detail' recipe.id %}" class="back-button">
+                キャンセル
+            </a>
+        </div>
+
+    </form>
+</div>
+
+<script>
+    // 画像削除ボタン
+    const deleteImageButton = document.getElementById(
+        "delete-image-button"
+    );
+
+    if (deleteImageButton) {
+        const clearCheckbox = document.getElementById(
+            "{{ form.image.id_for_label }}-clear"
+        );
+
+        const currentImage = document.getElementById("current-image");
+
+        deleteImageButton.addEventListener("click", function () {
+            clearCheckbox.checked = !clearCheckbox.checked;
+
+            currentImage.classList.toggle(
+                "is-deleted",
+                clearCheckbox.checked
+            );
+
+            deleteImageButton.textContent = clearCheckbox.checked
+                ? "画像の削除を取り消す"
+                : "画像を削除";
+        });
+
+        // 新しい画像を選択した場合は削除指定を解除
+        document.getElementById(
+            "{{ form.image.id_for_label }}"
+        ).addEventListener("change", function () {
+            if (this.files.length > 0) {
+                clearCheckbox.checked = false;
+                currentImage.classList.remove("is-deleted");
+                deleteImageButton.textContent = "画像を削除";
+            }
+        });
+    }
+
+    // 材料・手順のフォームセット
+    function setupFormset(options) {
+        const container = document.getElementById(options.containerId);
+        const addButton = document.getElementById(options.addButtonId);
+        const template = document.getElementById(options.templateId);
+        const totalForms = document.getElementById(options.totalFormsId);
+
+        function updateNumbers() {
+            const forms = container.querySelectorAll(options.formClass);
+
+            let number = 1;
+
+            forms.forEach(form => {
+                const deleteInput = form.querySelector(
+                    'input[name$="-DELETE"]'
+                );
+
+                if (deleteInput && deleteInput.checked) {
+                    return;
+                }
+
+                form.querySelector(options.numberClass).textContent =
+                    options.label + " " + number;
+
+                number++;
+            });
+        }
+
+        addButton.addEventListener("click", function () {
+            const index = Number(totalForms.value);
+
+            const html = template.innerHTML.replace(
+                /__prefix__/g,
+                index
+            );
+
+            container.insertAdjacentHTML("beforeend", html);
+
+            totalForms.value = index + 1;
+
+            updateNumbers();
+        });
+
+        container.addEventListener("click", function (event) {
+            if (!event.target.classList.contains("remove-button")) {
+                return;
+            }
+
+            const form = event.target.closest(options.formClass);
+
+            if (!form) {
+                return;
+            }
+
+            const deleteInput = form.querySelector(
+                'input[name$="-DELETE"]'
+            );
+
+            if (deleteInput) {
+                deleteInput.checked = true;
+                form.style.display = "none";
+            }
+
+            updateNumbers();
+        });
+
+        updateNumbers();
+    }
+
+    setupFormset({
+        containerId: "ingredient-forms",
+        addButtonId: "add-ingredient",
+        templateId: "ingredient-empty-form",
+        totalFormsId: "id_ingredients-TOTAL_FORMS",
+        formClass: ".ingredient-form",
+        numberClass: ".ingredient-number",
+        label: "材料"
+    });
+
+    setupFormset({
+        containerId: "step-forms",
+        addButtonId: "add-step",
+        templateId: "step-empty-form",
+        totalFormsId: "id_steps-TOTAL_FORMS",
+        formClass: ".step-form",
+        numberClass: ".step-number",
+        label: "手順"
+    });
+</script>
+
+{% endblock %}
