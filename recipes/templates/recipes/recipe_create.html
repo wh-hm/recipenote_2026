@@ -73,14 +73,44 @@
         box-shadow: 0 0 0 3px rgba(130, 155, 120, 0.15);
     }
 
-    .recipe-form input[type="file"] {
+    /* .recipe-form input[type="file"] {
         max-width: 100%;
         padding: 8px;
         border: 1px solid #d8ddd4;
         border-radius: 8px;
         background: #fff;
+    } */
+
+    /* 画像ファイル選択欄 */
+    .image-upload input[type="file"] {
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
+        padding: 12px;
+        background: #fafbf9;
+        border: 1px solid #ccd6cf;
+        border-radius: 7px;
+        color: #555;
+        font-size: 14px;
     }
 
+    /* ファイル選択ボタン */
+    .image-upload input[type="file"]::file-selector-button {
+        padding: 9px 16px;
+        margin-right: 12px;
+        background: #e5eee6;
+        color: #456b53;
+        border: 1px solid #cbd8ce;
+        border-radius: 6px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: background 0.2s ease, transform 0.2s ease;
+    }
+
+    .image-upload input[type="file"]::file-selector-button:hover {
+        background: #d5e4d7;
+        transform: translateY(-1px);
+    }
     /* 材料・作り方のカード */
     .ingredient-form,
     .step-form {
@@ -166,6 +196,7 @@
 
     .recipe-form button[type="submit"]:hover {
         background: #637d5b;
+        /* transform: translateY(-1px); */
     }
 
     /* エラー表示 */
@@ -221,9 +252,18 @@
                 {{ form.reference_url.errors }}
             </p>
 
-            <p>
+            <!-- <p>
                 {{ form.image.label_tag }}
                 {{ form.image }}
+                {{ form.image.errors }}
+            </p> -->
+            <p>
+                {{ form.image.label_tag }}
+
+                <div class="image-upload">
+                    {{ form.image }}
+                </div>
+
                 {{ form.image.errors }}
             </p>
 
@@ -476,6 +516,41 @@ document.addEventListener("DOMContentLoaded", function () {
 
             }
 
+        }
+
+    });
+
+    // 画像ファイル選択時のバリデーション
+    document.addEventListener("change", function (event) {
+
+        if (event.target.type !== "file" ||
+            event.target.name !== "image") {
+            return;
+        }
+
+        const file = event.target.files[0];
+
+        // ファイルが選択されていない場合
+        if (!file) {
+            return;
+        }
+
+        const allowedTypes = [
+            "image/jpeg",
+            "image/png"
+        ];
+
+        const allowedExtensions = /\.(jpg|jpeg|png)$/i;
+
+        // 形式チェック
+        if (
+            !allowedTypes.includes(file.type) ||
+            !allowedExtensions.test(file.name)
+        ) {
+            alert("JPG・JPEG・PNG形式の画像を選択してください。");
+
+            // 選択を解除
+            event.target.value = "";
         }
 
     });

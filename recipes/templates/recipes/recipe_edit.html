@@ -609,6 +609,45 @@
         updateNumbers();
     }
 
+
+    // 画像ファイル選択時のバリデーション
+    document.addEventListener("change", function (event) {
+
+        if (event.target.type !== "file" ||
+            event.target.name !== "image") {
+            return;
+        }
+
+        const file = event.target.files[0];
+
+        // ファイルが選択されていない場合
+        if (!file) {
+            return;
+        }
+
+        const allowedTypes = [
+            "image/jpeg",
+            "image/png"
+        ];
+
+        const allowedExtensions = /\.(jpg|jpeg|png)$/i;
+
+        // 形式チェック
+        if (
+            !allowedTypes.includes(file.type) ||
+            !allowedExtensions.test(file.name)
+        ) {
+            alert("JPG・JPEG・PNG形式の画像を選択してください。");
+
+            // 選択を解除
+            event.target.value = "";
+        }
+
+    });
+
+
+    
+
     setupFormset({
         containerId: "ingredient-forms",
         addButtonId: "add-ingredient",

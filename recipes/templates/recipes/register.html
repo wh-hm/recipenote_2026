@@ -3,21 +3,225 @@
 
 {% block title %}新規ユーザー登録 | レシピノート{% endblock %}
 
+{% block extra_css %}
+<style>
+    .register-page {
+        min-height: 75vh;
+        padding: 55px 20px 70px;
+        background-color: #f5f4ef;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .register-card {
+        width: 100%;
+        max-width: 540px;
+        padding: 40px 45px;
+        background-color: #ffffff;
+        border-radius: 14px;
+        box-shadow: 0 5px 20px rgba(45, 60, 45, 0.08);
+    }
+
+    .register-heading {
+        margin: 0 0 10px;
+        color: #344536;
+        font-size: 27px;
+        text-align: center;
+    }
+
+    .register-description {
+        margin-bottom: 30px;
+        color: #777;
+        font-size: 14px;
+        text-align: center;
+    }
+
+    .register-form {
+        display: flex;
+        flex-direction: column;
+        gap: 19px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+    }
+
+    .form-group label {
+        color: #344536;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .form-group input {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 12px 14px;
+        border: 1px solid #d5d9d2;
+        border-radius: 7px;
+        background-color: #fff;
+        font-size: 15px;
+        outline: none;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .form-group input:focus {
+        border-color: #789575;
+        box-shadow: 0 0 0 3px rgba(120, 149, 117, 0.15);
+    }
+
+    .field-error {
+        color: #c0392b;
+        font-size: 13px;
+        margin: 0;
+    }
+
+    .form-error {
+        padding: 12px 14px;
+        border-radius: 7px;
+        background-color: #fff1ef;
+        color: #b33b32;
+        font-size: 13px;
+        list-style: none;
+    }
+
+    .password-note {
+        margin: 0;
+        color: #888;
+        font-size: 12px;
+        line-height: 1.7;
+    }
+
+    .register-button {
+        width: 100%;
+        margin-top: 5px;
+        padding: 13px;
+        border: none;
+        border-radius: 7px;
+        background-color: #789575;
+        color: #fff;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.2s, transform 0.2s;
+    }
+
+    .register-button:hover {
+        background-color: #627e60;
+        transform: translateY(-2px);
+    }
+
+    .register-button:active {
+        transform: translateY(0);
+    }
+
+    .login-link {
+        margin-top: 25px;
+        color: #666;
+        font-size: 14px;
+        text-align: center;
+    }
+
+    .login-link a {
+        color: #617e60;
+        font-weight: bold;
+        text-decoration: none;
+    }
+
+    .login-link a:hover {
+        text-decoration: underline;
+    }
+
+    @media (max-width: 600px) {
+        .register-page {
+            padding: 30px 15px 45px;
+        }
+
+        .register-card {
+            padding: 30px 22px;
+        }
+
+        .register-heading {
+            font-size: 23px;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 
-<h1>新規ユーザー登録</h1>
+<div class="register-page">
+    <div class="register-card">
 
-<form method="POST">
-    {% csrf_token %}
+        <h1 class="register-heading">新規ユーザー登録</h1>
+        <p class="register-description">
+            レシピノートを始めましょう
+        </p>
 
-    {{ form.as_p }}
+        <form method="POST" class="register-form">
+            {% csrf_token %}
 
-    <button type="submit">登録</button>
-</form>
+            {% if form.non_field_errors %}
+                <ul class="form-error">
+                    {% for error in form.non_field_errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
 
-<p>
-    既にアカウントをお持ちの方は
-    <a href="{% url 'login' %}">ログイン</a>
-</p>
+            <div class="form-group">
+                <label for="{{ form.username.id_for_label }}">ユーザー名</label>
+                {{ form.username }}
+
+                {% for error in form.username.errors %}
+                    <p class="field-error">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.email.id_for_label }}">メールアドレス</label>
+                {{ form.email }}
+
+                {% for error in form.email.errors %}
+                    <p class="field-error">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.password1.id_for_label }}">パスワード</label>
+                {{ form.password1 }}
+
+                <p class="password-note">
+                    8文字以上のパスワードを設定してください。
+                </p>
+
+                {% for error in form.password1.errors %}
+                    <p class="field-error">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.password2.id_for_label }}">パスワード（確認用）</label>
+                {{ form.password2 }}
+
+                {% for error in form.password2.errors %}
+                    <p class="field-error">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            <button type="submit" class="register-button">
+                登録する
+            </button>
+        </form>
+
+        <p class="login-link">
+            既にアカウントをお持ちの方は
+            <a href="{% url 'login' %}">ログイン</a>
+        </p>
+
+    </div>
+</div>
 
 {% endblock %}
